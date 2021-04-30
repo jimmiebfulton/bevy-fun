@@ -1,0 +1,5 @@
+target/
+.idea/
+
+# Do not check in local developer variables
+.env.dev
