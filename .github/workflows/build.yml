@@ -19,12 +19,10 @@ jobs:
       with:
         toolchain: nightly
 
-    - name: Cargo Build
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
 
     - name: Cargo Build
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
+      run: cargo +nightly build
+
+    - name: Cargo Test
+      run: cargo +nightly test
+      
