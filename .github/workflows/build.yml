@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install Alsa Sound
+      run: sudo apt-get install libasound2-dev
+
     - name: Checkout
       uses: actions/checkout@v2
 
@@ -19,10 +22,8 @@ jobs:
       with:
         toolchain: nightly
 
-
     - name: Cargo Build
       run: cargo +nightly build
 
     - name: Cargo Test
       run: cargo +nightly test
-      
