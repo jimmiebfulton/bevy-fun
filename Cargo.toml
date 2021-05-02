@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 bevy = { version = "0.5", features = ["dynamic"] }
+
+[profile.dev]
+split-debuginfo = "unpacked"

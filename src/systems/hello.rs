@@ -14,7 +14,7 @@ impl Plugin for HelloPlugin {
 }
 
 pub fn say_hello() {
-    print!("Hello, World!");
+    print!("Hello, Cruel World!");
 }
 
 fn greet(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<(Entity, &Name)>) {
