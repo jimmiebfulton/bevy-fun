@@ -1,6 +1,18 @@
 use bevy::diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum DebugUIState {
+    Enabled,
+    Disabled,
+}
+
+impl Default for DebugUIState {
+    fn default() -> Self {
+        DebugUIState::Disabled
+    }
+}
+
 const DEBUG_FONT_SIZE: f32 = 15.0;
 const DEBUG_KEY_FONT: &str = "fonts/FiraSans-Bold.ttf";
 const DEBUG_KEY_FONT_COLOR: Color = Color::WHITE;
@@ -8,13 +20,25 @@ const DEBUG_VALUE_FONT: &str = "fonts/FiraMono-Medium.ttf";
 const DEBUG_VALUE_FONT_COLOR: Color = Color::WHITE;
 
 #[derive(Default)]
-pub struct DebugPlugin {}
+pub struct DebugUIPlugin {
+    pub start_state: DebugUIState,
+}
 
-impl Plugin for DebugPlugin {
+impl Plugin for DebugUIPlugin {
     fn build(&self, app: &mut AppBuilder) {
+        app.add_state(self.start_state.clone());
         app.add_plugin(FrameTimeDiagnosticsPlugin::default());
-        app.add_startup_system(init.system());
-        app.add_system(debug_update_system.system());
+        app.add_system(debug_state.system());
+        app.add_system_set(
+            SystemSet::on_enter(DebugUIState::Enabled).with_system(spawn_debug.system()),
+        );
+        app.add_system_set(
+            SystemSet::on_enter(DebugUIState::Disabled).with_system(despawn_debug.system()),
+        );
+        app.add_system_set(
+            SystemSet::on_update(DebugUIState::Enabled).with_system(debug_update_system.system()),
+        );
+        app.add_startup_system(text_color_spawn.system());
         app.add_system(text_color_system.system());
     }
 }
@@ -25,12 +49,39 @@ pub struct FpsText;
 // A unit struct to help identify the color-changing Text component
 pub struct ColorText;
 
-fn init(mut commands: Commands, asset_server: Res<AssetServer>) {
-    text_color_spawn(&mut commands, &asset_server);
-    spawn_debug(&mut commands, &asset_server);
+fn debug_state(mut keys: ResMut<Input<KeyCode>>, mut app_state: ResMut<State<DebugUIState>>) {
+    if keys.pressed(KeyCode::LWin)
+        && keys.pressed(KeyCode::LAlt)
+        && keys.pressed(KeyCode::LControl)
+        && keys.just_pressed(KeyCode::D)
+    {
+        match app_state.current() {
+            DebugUIState::Enabled => {
+                app_state
+                    .set(DebugUIState::Disabled)
+                    .expect("Failed to disable Debug UI");
+            }
+            DebugUIState::Disabled => {
+                app_state
+                    .set(DebugUIState::Enabled)
+                    .expect("Failed to enable Debug UI");
+            }
+        }
+
+        keys.reset(KeyCode::LWin);
+        keys.reset(KeyCode::LAlt);
+        keys.reset(KeyCode::LControl);
+        keys.reset(KeyCode::D)
+    }
 }
 
-fn spawn_debug(commands: &mut Commands, asset_server: &Res<AssetServer>) {
+fn despawn_debug(mut commands: Commands, mut query: Query<(Entity, &Text), With<FpsText>>) {
+    if let Ok((id, _text)) = query.single_mut() {
+        commands.entity(id).despawn();
+    }
+}
+
+fn spawn_debug(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Rich text with multiple sections
     commands
         .spawn_bundle(TextBundle {
@@ -77,7 +128,7 @@ fn debug_update_system(diagnostics: Res<Diagnostics>, mut query: Query<&mut Text
     }
 }
 
-fn text_color_spawn(commands: &mut Commands, asset_server: &Res<AssetServer>) {
+fn text_color_spawn(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn_bundle(TextBundle {
             style: Style {
