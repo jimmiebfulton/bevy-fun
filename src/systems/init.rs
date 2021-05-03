@@ -1,9 +1,9 @@
-use crate::components::{Animal, Creature, Name, Person, Position};
 use bevy::prelude::*;
 
+use crate::components::{Animal, Creature, Name, Person};
+
 pub fn init(mut commands: Commands) {
-    commands.spawn().insert(Position::default());
-    commands.spawn().insert(Position { x: 5.1, y: 210.5 });
+    commands.spawn_bundle(UiCameraBundle::default());
 
     commands
         .spawn()
