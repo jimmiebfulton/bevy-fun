@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use systems::hello::HelloPlugin;
 use systems::inputs::InputsPlugin;
 use systems::ui::UIPlugins;
+
 mod components;
 mod systems;
 
