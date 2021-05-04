@@ -50,11 +50,7 @@ pub struct FpsText;
 pub struct ColorText;
 
 fn debug_state(mut keys: ResMut<Input<KeyCode>>, mut app_state: ResMut<State<DebugUIState>>) {
-    if keys.pressed(KeyCode::LWin)
-        && keys.pressed(KeyCode::LAlt)
-        && keys.pressed(KeyCode::LControl)
-        && keys.just_pressed(KeyCode::D)
-    {
+    if keys.pressed(KeyCode::LWin) && keys.just_pressed(KeyCode::D) {
         match app_state.current() {
             DebugUIState::Enabled => {
                 app_state
@@ -69,8 +65,6 @@ fn debug_state(mut keys: ResMut<Input<KeyCode>>, mut app_state: ResMut<State<Deb
         }
 
         keys.reset(KeyCode::LWin);
-        keys.reset(KeyCode::LAlt);
-        keys.reset(KeyCode::LControl);
         keys.reset(KeyCode::D)
     }
 }
